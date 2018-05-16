@@ -1,0 +1,5 @@
+server:
+  port: 8040
+wallet:
+  dir: /Users/henly.liu/wallet-service/src/bastionpay_api
+  cfgName: local_config.json
