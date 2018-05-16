@@ -110,7 +110,7 @@ func startSwagger(engine *gin.Engine)  {
 				if apiProxy.ApiDocInfo.Level > userLevel {
 					continue
 				}
-				router.POST(apiProxy.ApiDocInfo.Path, func(ctx *gin.Context) {
+				router.POST(apiProxy.ApiDocInfo.Path(), func(ctx *gin.Context) {
 					path := ctx.Request.URL.Path
 					path = strings.TrimRight(path, "/")
 					path = strings.TrimLeft(path, "/")
@@ -133,7 +133,7 @@ func startSwagger(engine *gin.Engine)  {
 
 					ctx.ShouldBindJSON(apiProxy.ApiDocInfo.Input)
 
-					apiErr := gateway.Run("/" + groupPath + apiProxy.ApiDocInfo.Path, apiProxy.ApiDocInfo.Input, apiProxy.ApiDocInfo.Output)
+					apiErr := gateway.RunApi("/" + groupPath + apiProxy.ApiDocInfo.Path(), apiProxy.ApiDocInfo.Input, apiProxy.ApiDocInfo.Output)
 					if apiErr != nil {
 						fmt.Println("api err: ", apiErr)
 						ctx.JSON(http.StatusOK, swagger.SuccessResp{Result:1, Message:apiErr.ErrMsg})
@@ -143,11 +143,12 @@ func startSwagger(engine *gin.Engine)  {
 					ctx.JSON(http.StatusOK, apiProxy.ApiDocInfo.Output)
 				})
 
-				swagger.Swagger3(router, apiGroupName, apiProxy.ApiDocInfo.Path,"post", &swagger.StructParam{
+				swagger.Swagger3(router, apiGroupName, apiProxy.ApiDocInfo.Path(),"post", &swagger.StructParam{
 					JsonData: apiProxy.ApiDocInfo.Input,
 					ResponseData: apiProxy.ApiDocInfo.Output,
-					Tags:[]string{apiProxy.ApiDocInfo.Comment},
-					Summary:apiProxy.ApiDocInfo.Comment,
+					Tags:[]string{apiGroupName},
+					Summary:apiProxy.ApiDocInfo.Name,
+					Description:apiProxy.ApiDocInfo.Description,
 				})
 			}
 		}
