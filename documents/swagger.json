@@ -1,0 +1,146 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "交易所用户管理服务\n包含 登录，认证，用户信息查看，安全认证等信息\n采用JWT token认证，并使用email, sms, captcha, google authenticator等方式鉴权",
+    "title": "Exchange Account API.",
+    "contact": {
+      "name": "Ingram",
+      "url": "http://blog.diiia.com",
+      "email": "ingram.su@blockchain.com"
+    },
+    "version": "0.0.1"
+  },
+  "host": "localhost",
+  "basePath": "/api/account",
+  "paths": {
+    "/register": {
+      "post": {
+        "description": "User username and password to register this system",
+        "summary": "Register to system",
+        "operationId": "account",
+        "parameters": [
+          {
+            "description": "require params",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "string"
+                },
+                "language": {
+                  "description": "Get from user's browser",
+                  "type": "string",
+                  "format": "string"
+                },
+                "password": {
+                  "description": "SHA512 with salt",
+                  "type": "string",
+                  "format": "string"
+                },
+                "timezone": {
+                  "description": "Get from user's browser",
+                  "type": "string",
+                  "format": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/Response"
+          }
+        }
+      }
+    },
+    "/verification/{type}": {
+      "get": {
+        "description": "Ask verification in to system",
+        "tags": [
+          "verification"
+        ],
+        "summary": "Ask verification",
+        "operationId": "verificationReq",
+        "parameters": [
+          {
+            "enum": [
+              "email",
+              "sms",
+              "captcha",
+              "ga"
+            ],
+            "type": "string",
+            "description": "type of verification",
+            "name": "type",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/Response"
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "Response": {
+      "description": "This is default response struct",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "description": "response code",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Code"
+          },
+          "msg": {
+            "description": "response msg",
+            "type": "string",
+            "x-go-name": "Msg"
+          }
+        }
+      },
+      "headers": {
+        "result": {
+          "description": "response result"
+        },
+        "status": {
+          "description": "response status"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "jwt": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "jwt": []
+    }
+  ],
+  "x-meta-array": [
+    "language",
+    "timezone"
+  ]
+}

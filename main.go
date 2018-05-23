@@ -6,7 +6,6 @@ import (
 	"strings"
 	"net/http"
 	"fmt"
-	"api_router/base/data"
 	"bastionpay_api/apigroup"
 	"bastionpay_api/gateway"
 	"flag"
@@ -14,6 +13,8 @@ import (
 	"gopkg.in/yaml.v2"
 	"os"
 	"github.com/gin-contrib/cors"
+	"bastionpay_api/apibackend"
+	"bastionpay_api/apidoc"
 )
 
 var confFile = flag.String("c", "config.yml", "conf file.")
@@ -61,32 +62,44 @@ func main()  {
 		//},
 		//MaxAge: 12 * time.Hour,
 	}))
+	//engine.Static("/api", "swagger-dist")
+	engine.Static("/documents", "documents")
 
 	startSwagger(engine)
 	engine.Run(":" + conf.Server.Port)
 }
 
-func DocLoader(key string) ([]byte, error){
+func isInGroup(group []string, name string) bool {
+	for _, v := range group {
+		if v == name {
+			return true
+		}
+	}
+
+	return false
+}
+
+func docLoader(key string) ([]byte, error){
 	fmt.Println("key:", key)
 	return []byte("what"), nil
 }
 
 func startSwagger(engine *gin.Engine)  {
-	config := swagger.Config{}
-	config.Title = "BastionPay Api"
-	config.Description  = "BastionPay Api"
-	config.DocVersion = "1.0"
-	swagger.InitializeApiRoutes(engine, &config, DocLoader)
+	swagger.InitializeApiRoutesByGroup(engine, "apidoc")
 
-	initDoc := func(userLevel int){
-		apiGroupName := ""
-		if userLevel == data.APILevel_client{
-			apiGroupName = "api"
-		} else if userLevel == data.APILevel_admin {
-			apiGroupName = "user"
-		} else if userLevel == data.APILevel_genesis {
-			apiGroupName = "admin"
+	initDoc := func(apiGroupName string){
+		config := swagger.Config{}
+		config.Title = "BastionPay " + apiGroupName
+		apiGroupInfo, err := apigroup.GetApiGroupInfo(apiGroupName)
+		if err != nil {
+			config.Description = "BastionPay " + apiGroupName
+		} else {
+			config.Description = apiGroupInfo.Description
 		}
+		config.Description += " Refer <a href='#tag/Api-uniform-data-layer'><b>Api uniform data layer</b></a>"
+
+		config.DocVersion = "1.0"
+		swagger.AddGroupOption(apiGroupName, &config, docLoader)
 
 		router := engine.Group("/"+apiGroupName, func(ctx *gin.Context) {
 
@@ -107,7 +120,7 @@ func startSwagger(engine *gin.Engine)  {
 		apiAll := apigroup.ListApiGroup()
 		for _, apiGroupAll := range apiAll {
 			for _, apiProxy := range apiGroupAll{
-				if apiProxy.ApiDocInfo.Level > userLevel {
+				if !isInGroup(apiProxy.ApiDocInfo.Group, apiGroupName) {
 					continue
 				}
 				router.POST(apiProxy.ApiDocInfo.Path(), func(ctx *gin.Context) {
@@ -143,18 +156,28 @@ func startSwagger(engine *gin.Engine)  {
 					ctx.JSON(http.StatusOK, apiProxy.ApiDocInfo.Output)
 				})
 
-				swagger.Swagger3(router, apiGroupName, apiProxy.ApiDocInfo.Path(),"post", &swagger.StructParam{
+				swagger.Swagger2ByGroup(router, apiGroupName, apiProxy.ApiDocInfo.Path(),"post", &swagger.StructParam{
 					JsonData: apiProxy.ApiDocInfo.Input,
 					ResponseData: apiProxy.ApiDocInfo.Output,
-					Tags:[]string{apiGroupName},
+					Tags:[]string{apiProxy.ApiDocInfo.SrvName},
 					Summary:apiProxy.ApiDocInfo.Name,
 					Description:apiProxy.ApiDocInfo.Description,
 				})
 			}
 		}
+
+		// api gateway
+		apiDataEntry := apidoc.ApiDocDataEntry
+		swagger.Swagger2ByGroup(router, apiGroupName, apiDataEntry.Path(),"post", &swagger.StructParam{
+			JsonData: apiDataEntry.Input,
+			ResponseData: apiDataEntry.Output,
+			Tags:[]string{"Api uniform data layer"},
+			Summary:apiDataEntry.Name,
+			Description:apiDataEntry.Description,
+		})
 	}
 
-	initDoc(data.APILevel_client)
-	initDoc(data.APILevel_admin)
-	initDoc(data.APILevel_genesis)
+	initDoc(apibackend.HttpRouterApi)
+	initDoc(apibackend.HttpRouterUser)
+	initDoc(apibackend.HttpRouterAdmin)
 }
