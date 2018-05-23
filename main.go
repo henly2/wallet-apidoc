@@ -47,7 +47,6 @@ func main()  {
 	err = gateway.Init(conf.Wallet.Dir, conf.Wallet.CfgName)
 	if err != nil {
 		fmt.Println("gateway.Init error:", err.Error())
-		os.Exit(1)
 	}
 
 	engine := gin.Default()
