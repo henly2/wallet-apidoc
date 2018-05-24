@@ -15,6 +15,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"bastionpay_api/apibackend"
 	"bastionpay_api/apidoc"
+	"api_router/base/data"
+	"sort"
 )
 
 var confFile = flag.String("c", "config.yml", "conf file.")
@@ -172,11 +174,26 @@ func startSwagger(engine *gin.Engine)  {
 			ResponseData: apiDataEntry.Output,
 			Tags:[]string{"Api uniform data layer"},
 			Summary:apiDataEntry.Name,
-			Description:apiDataEntry.Description,
+			Description:apiDataEntry.Description + buildErrMsg(apiGroupName),
 		})
 	}
 
 	initDoc(apibackend.HttpRouterApi)
 	initDoc(apibackend.HttpRouterUser)
 	initDoc(apibackend.HttpRouterAdmin)
+}
+
+func buildErrMsg(group string) string {
+	var codes []int
+	for c, _ := range data.GetGroupErrMsg(group) {
+		codes = append(codes, c)
+	}
+	sort.Ints(codes)
+
+	errs := "<br><b>错误码：</b>"
+	for _, c := range codes {
+		errs += fmt.Sprintf("<br>%d-%s", c, data.GetErrMsg(c))
+	}
+
+	return errs
 }
