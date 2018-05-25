@@ -15,7 +15,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"bastionpay_api/apibackend"
 	"bastionpay_api/apidoc"
-	"api_router/base/data"
 	"sort"
 )
 
@@ -185,14 +184,14 @@ func startSwagger(engine *gin.Engine)  {
 
 func buildErrMsg(group string) string {
 	var codes []int
-	for c, _ := range data.GetGroupErrMsg(group) {
+	for c, _ := range apibackend.GetGroupErrMsg(group) {
 		codes = append(codes, c)
 	}
 	sort.Ints(codes)
 
 	errs := "<br><b>错误码：</b>"
 	for _, c := range codes {
-		errs += fmt.Sprintf("<br>%d-%s", c, data.GetErrMsg(c))
+		errs += fmt.Sprintf("<br>%d-%s", c, apibackend.GetErrMsg(c))
 	}
 
 	return errs
