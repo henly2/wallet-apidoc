@@ -82,7 +82,7 @@ func main()  {
 				"lang" : lang,
 			})
 		} else {
-			ctx.File(file)
+			ctx.File("documents/" + file)
 		}
 	})
 	//engine.Static("/js", "documents")
