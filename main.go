@@ -28,7 +28,9 @@ type Config struct{
 		Dir    		string `yaml:"dir"`
 		CfgName    	string `yaml:"cfgName"`
 	}
+	Locales string `yaml:"locales"`
 }
+
 func main()  {
 	flag.Parse()
 
@@ -50,6 +52,8 @@ func main()  {
 		fmt.Println("gateway.Init error:", err.Error())
 	}
 
+	swagger.SetLocalesDir(conf.Locales)
+
 	engine := gin.Default()
 	engine.Use(cors.New(cors.Config{
 		AllowAllOrigins:true,
@@ -62,8 +66,24 @@ func main()  {
 		//},
 		//MaxAge: 12 * time.Hour,
 	}))
+
 	//engine.Static("/api", "swagger-dist")
-	engine.Static("/documents", "documents")
+	engine.LoadHTMLGlob("documents/*.html")
+	engine.GET("/documents/:file", func(ctx *gin.Context) {
+		file := ctx.Param("file")
+		lang := ctx.Request.FormValue("lang")
+		if lang == "" {
+			lang = "en-us"
+		}
+		fmt.Println(file, "--", lang)
+
+		ctx.HTML(http.StatusOK, file, gin.H{
+			"lang" : lang,
+		})
+	})
+	//router.Static("/", "documents")
+
+	engine.Use()
 
 	startSwagger(engine)
 	engine.Run(":" + conf.Server.Port)
@@ -89,14 +109,14 @@ func startSwagger(engine *gin.Engine)  {
 
 	initDoc := func(apiGroupName string){
 		config := swagger.Config{}
-		config.Title = "BastionPay " + apiGroupName
+		config.Title = "{{.BastionPay}} " + apiGroupName
 		apiGroupInfo, err := apigroup.GetApiGroupInfo(apiGroupName)
 		if err != nil {
-			config.Description = "BastionPay " + apiGroupName
+			config.Description = "{{.BastionPay}} " + apiGroupName
 		} else {
 			config.Description = apiGroupInfo.Description
 		}
-		config.Description += " Refer <a href='#tag/Api-uniform-data-layer'><b>Api uniform data layer</b></a>"
+		config.Description += " {{.Refer}} <a href='#tag/{{.serviceTag}}'><b>{{.serviceTag}}</b></a>"
 
 		config.DocVersion = "1.0"
 		swagger.AddGroupOption(apiGroupName, &config, docLoader)
@@ -159,7 +179,7 @@ func startSwagger(engine *gin.Engine)  {
 				swagger.Swagger2ByGroup(router, apiGroupName, apiProxy.ApiDocInfo.Path(),"post", &swagger.StructParam{
 					JsonData: apiProxy.ApiDocInfo.Input,
 					ResponseData: apiProxy.ApiDocInfo.Output,
-					Tags:[]string{apiProxy.ApiDocInfo.SrvName},
+					Tags:[]string{apiProxy.ApiDocInfo.Tag},
 					Summary:apiProxy.ApiDocInfo.Name,
 					Description:apiProxy.ApiDocInfo.Description,
 				})
@@ -171,9 +191,9 @@ func startSwagger(engine *gin.Engine)  {
 		swagger.Swagger2ByGroup(router, apiGroupName, apiDataEntry.Path(),"post", &swagger.StructParam{
 			JsonData: apiDataEntry.Input,
 			ResponseData: apiDataEntry.Output,
-			Tags:[]string{"Api uniform data layer"},
-			Summary:apiDataEntry.Name,
-			Description:apiDataEntry.Description + buildErrMsg(apiGroupName),
+			Tags:[]string{"{{.serviceTag}}"},
+			Summary:"{{.functionName}}",
+			Description: "{{.functionDescription}}" + buildErrMsg(apiGroupName),
 		})
 	}
 
@@ -189,7 +209,7 @@ func buildErrMsg(group string) string {
 	}
 	sort.Ints(codes)
 
-	errs := "<br><b>错误码：</b>"
+	errs := "<br><b>{{.ErrCode}}：</b>"
 	for _, c := range codes {
 		errs += fmt.Sprintf("<br>%d-%s", c, apibackend.GetErrMsg(c))
 	}

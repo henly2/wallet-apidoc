@@ -3,3 +3,5 @@ server:
 wallet:
   dir: /Users/henly.liu/wallet-service/src/bastionpay_api
   cfgName: user_henly.json
+locales:
+  ./documents/locales
