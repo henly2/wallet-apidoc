@@ -75,13 +75,17 @@ func main()  {
 		if lang == "" {
 			lang = "en-us"
 		}
-		fmt.Println(file, "--", lang)
 
-		ctx.HTML(http.StatusOK, file, gin.H{
-			"lang" : lang,
-		})
+		fmt.Println(file, "--", lang)
+		if strings.Index(file, ".html") != -1{
+			ctx.HTML(http.StatusOK, file, gin.H{
+				"lang" : lang,
+			})
+		} else {
+			ctx.File(file)
+		}
 	})
-	//router.Static("/", "documents")
+	//engine.Static("/js", "documents")
 
 	engine.Use()
 
