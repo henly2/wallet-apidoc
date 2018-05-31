@@ -72,6 +72,7 @@ func main()  {
 	engine.GET("/documents/:file", func(ctx *gin.Context) {
 		file := ctx.Param("file")
 		lang := ctx.Request.FormValue("lang")
+		lang = strings.ToLower(lang)
 		if lang == "" {
 			lang = "en-us"
 		}
