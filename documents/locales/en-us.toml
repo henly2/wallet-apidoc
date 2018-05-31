@@ -45,6 +45,8 @@ sp_set_pay_addressName = "Set pay address"
 sp_set_pay_addressDescription = "Set pay address, admin level api"
 sp_set_asset_attributeName = "Set asset attribute"
 sp_set_asset_attributeDescription = "Set asset attribute, admin level api"
+sp_get_balanceName = "Get user balance"
+sp_get_balanceDescription = "Get user balance"
 
 support_assetsName = "Get supported asset"
 support_assetsDescription = "Get supported asset"

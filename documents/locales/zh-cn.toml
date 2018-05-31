@@ -45,6 +45,8 @@ sp_set_pay_addressName = "设置热钱包地址"
 sp_set_pay_addressDescription = "设置热钱包地址，管理员权限接口"
 sp_set_asset_attributeName = "设置币种属性"
 sp_set_asset_attributeDescription = "设置币种属性，管理员权限接口"
+sp_get_balanceName = "获取用户账户"
+sp_get_balanceDescription = "获取用户账户"
 
 support_assetsName = "获取币种"
 support_assetsDescription = "获取支持币种"

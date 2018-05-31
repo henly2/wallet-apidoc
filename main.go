@@ -199,6 +199,16 @@ func startSwagger(engine *gin.Engine)  {
 			Summary:"{{.functionName}}",
 			Description: "{{.functionDescription}}" + buildErrMsg(apiGroupName),
 		})
+
+		// push
+		//apiDataPush := apidoc.ApiDocDataPush
+		//swagger.Swagger2ByGroup(router, apiGroupName, apiDataEntry.Path(),"post", &swagger.StructParam{
+		//	JsonData: apiDataEntry.Input,
+		//	ResponseData: apiDataEntry.Output,
+		//	Tags:[]string{"{{.serviceTag}}"},
+		//	Summary:"{{.functionName}}",
+		//	Description: "{{.functionDescription}}" + buildErrMsg(apiGroupName),
+		//})
 	}
 
 	initDoc(apibackend.HttpRouterApi)
