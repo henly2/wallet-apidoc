@@ -27,6 +27,8 @@ updateprofileName = "Update a BastionPay user profile"
 updateprofileDescription = "Update a BastionPay user profile"
 listusersName = "Get BastionPay users"
 listusersDescription = "Get BastionPay users"
+updatefrozenName = "Update users frozen status"
+updatefrozenDescription = "Update users frozen status"
 
 authTag = "Auth"
 authDataName = "Verify and decrypt data"

@@ -27,6 +27,8 @@ updateprofileName = "更新用户钱包开发设置"
 updateprofileDescription = "更新用户钱包开发设置"
 listusersName = "获取用户列表"
 listusersDescription = "获取用户列表"
+updatefrozenName = "更新用户冻结状态"
+updatefrozenDescription = "更新用户冻结状态"
 
 authTag = "验证服务"
 authDataName = "验证和解析数据"
