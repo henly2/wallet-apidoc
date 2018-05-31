@@ -3,7 +3,7 @@ Refer = "Refer"
 
 #framework```
 BastionPay = "BastionPay"
-ApiDocDescription = "This api document is for developers to access BastionPay service, all api request and response json body is not real body data, developers need convert json to string, and then package string to common json, you can go to github.com to download golang sdk."
+ApiDocDescription = "This api document is for developers to access BastionPay service, all api request and response json body is not real body data, developers need convert json to string, and then package string to common json."
 UserApiDocDescription = "This api document is for user backend developers to access BastionPay service."
 AdminApiDocDescription = "This api document is for admin backend developers to access BastionPay service."
 
